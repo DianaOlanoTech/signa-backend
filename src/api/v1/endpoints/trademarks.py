@@ -13,7 +13,7 @@ from src.api.v1.schemas import trademarks as trademark_schemas
 router = APIRouter()
 
 
-@router.post("/", response_model=trademark_schemas.TrademarkResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=trademark_schemas.TrademarkResponse, status_code=status.HTTP_201_CREATED)
 def create_trademark(
         trademark: trademark_schemas.TrademarkCreate,  # Request body containing trademark data
         db: Session = Depends(get_db)  # Database session injected as dependency
@@ -35,7 +35,7 @@ def create_trademark(
         )
 
 
-@router.get("/", response_model=trademark_schemas.TrademarkListResponse)
+@router.get("", response_model=trademark_schemas.TrademarkListResponse)
 def read_trademarks(
         skip: int = 0,
         limit: int = 10,
@@ -52,7 +52,7 @@ def read_trademarks(
     # Obtain the total number of brands using the existing CRUD function.
     total = crud_trademark.get_trademarks_count(db)
 
-    # Returns a dictionary that matches the structure of our new ‘TrademarkListResponse’ schema.
+    # Returns a dictionary that matches the structure of our new "TrademarkListResponse" schema.
     return {"data": trademarks, "total": total}
 
 
