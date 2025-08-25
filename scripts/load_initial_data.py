@@ -1,4 +1,3 @@
-# scripts/load_initial_data_improved.py
 """
 Improved script for bulk loading initial data into the trademark database.
 Run from backend directory: python scripts/load_initial_data_improved.py
@@ -143,20 +142,18 @@ class BulkDataLoader:
         try:
             print(f"🔧 Environment: {settings.ENVIRONMENT}")
             print(f"🔧 Database type: {'PostgreSQL' if settings.is_postgres else 'SQLite'}")
-            print(f"🔧 Render deployment: {settings.RENDER}")
+
+            is_production = settings.ENVIRONMENT == "production"
+            print(f"🔧 Production deployment: {is_production}")
 
             if self.verbose:
                 print(f"🔧 Database URL: {settings.DATABASE_URL}")
 
             # Test connection
             if settings.is_sqlite:
-                result = self.db.execute(text("SELECT 1")).scalar()
-                if self.verbose:
-                    db_path = settings.DATABASE_URL.replace("sqlite:///", "")
-                    print(f"🔧 SQLite file: {db_path}")
+                self.db.execute(text("SELECT 1"))
             else:
-                result = self.db.execute(text("SELECT version()")).scalar()
-                print(f"🔧 PostgreSQL version: {result}")
+                self.db.execute(text("SELECT 1"))  # A simple SELECT 1 works for both
 
             print("✅ Database connection successful")
 
