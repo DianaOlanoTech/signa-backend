@@ -13,8 +13,11 @@ from src.api.v1.endpoints import trademarks
 # Define the list of allowed origins (domains)
 # This explicitly tells the backend which frontend URLs are allowed to make requests.
 origins = [
-    "https://signa-frontend-chi.vercel.app", # Your frontend's production URL
-    "http://localhost:3000",              # The URL for your local frontend development
+    "https://signa-frontend-chi.vercel.app",  # Your frontend's production URL
+    "http://localhost:3000",                  # The URL for your local frontend development
+    "http://localhost:8000",                  # Local backend for development
+    "https://signa-backend-q1y2.onrender.com", # Your backend's production URL (for self-requests)
+    "*"  # Temporary: allows all origins - REMOVE in production for security
 ]
 
 # Create the main FastAPI application instance
@@ -31,7 +34,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
