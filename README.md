@@ -2,15 +2,16 @@
 
 This repository contains the backend RESTful API for the Signa IP technical test. It is a robust and scalable application built with FastAPI to manage trademark records, providing complete CRUD (Create, Read, Update, Delete) functionality.
 
-The application is designed to be run locally with SQLite for ease of development and is deployed using a PostgreSQL database for production-level persistence and reliability.
+The application is designed to be run locally with SQLite for ease of development and is deployed using a managed PostgreSQL database on Render for production-level persistence and reliability.
 
 ## Key Features
 
 - **Modern Tech Stack**: Built with FastAPI, Pydantic, and SQLAlchemy 2.0.
-- **Paginated Responses**: The main listing endpoint is paginated to handle large datasets efficiently.
+- **Paginated Responses**: The main listing endpoint is paginated to efficiently handle large datasets.
 - **Database Migrations**: Uses Alembic to manage database schema changes in a controlled and versioned manner.
+- **Dual Database Support**: Seamlessly works with SQLite for local development and PostgreSQL for production.
 - **Dependency Injection**: Leverages FastAPI's dependency injection system for clean and testable code.
-- **Production-Ready Deployment**: Configured for deployment on platforms like Render using PostgreSQL.
+- **Automated Deployment**: Configured for continuous deployment on platforms like Render.
 
 ## Technologies Used
 
@@ -36,7 +37,7 @@ The API provides the following endpoints for managing trademark records.
 | `PUT` | `/{id}`| Updates an existing trademark record by its ID. |
 | `DELETE`| `/{id}`| Deletes a trademark record by its ID. |
 
-## Getting Started (Local Setup)
+## Local Development Setup
 
 Follow these instructions to get the backend running on your local machine.
 
@@ -78,7 +79,7 @@ Follow these instructions to get the backend running on your local machine.
     # For macOS/Linux
     cp .env.example .env
     ```
-    *(No changes are needed in the `.env` file for the default local SQLite setup).*
+    *(The default `.env` is already configured for SQLite, so no changes are needed to get started).*
 
 5.  **Initialize the database:**
     Run the Alembic migrations to create the `trademarks.db` file and the necessary tables inside the `signa-backend` directory.
@@ -86,8 +87,8 @@ Follow these instructions to get the backend running on your local machine.
     alembic upgrade head
     ```
 
-6.  **(Optional) Load initial data:**
-    You can populate the database with a sample dataset by running the provided script:
+6.  **(Optional) Load sample data:**
+    You can populate the database with a sample dataset by running the provided script. This script is safe to run multiple times.
     ```bash
     python scripts/load_initial_data.py
     ```
@@ -100,5 +101,12 @@ To start the development server, run the following command from the `signa-backe
 uvicorn src.main:app --reload
 ```
 
-- The API will be available at http://127.0.0.1:8000.
+- The API will be available at http://12- 7.0.0.1:8000.
 - You can access the interactive API documentation (Swagger UI) at http://127.0.0.1:8000/docs.
+
+## Deployment (Render):
+   - This application is configured for deployment on Render.
+   - The render.yaml file (if included) or the manual service configuration uses the DATABASE_URL provided by a managed PostgreSQL service.
+   - The Build Command (pip install ... && alembic upgrade head) ensures the database schema is always up-to-date with each deployment.
+   - Data Seeding: For the purpose of this technical test, the load_initial_data.py script is included in the build command to ensure the application is populated with sample data upon
+   deployment. In a real-world production environment, this step would be removed to ensure user data persistence.
