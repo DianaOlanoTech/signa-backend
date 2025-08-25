@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 
-# Configurar el path de Python para resolver imports
+# Configure the Python path to resolve imports
 current_dir = Path(__file__).resolve().parent
 backend_dir = current_dir.parent
 sys.path.insert(0, str(backend_dir))
@@ -9,6 +9,13 @@ sys.path.insert(0, str(backend_dir))
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from src.api.v1.endpoints import trademarks
+
+# Define the list of allowed origins (domains)
+# This explicitly tells the backend which frontend URLs are allowed to make requests.
+origins = [
+    "https://signa-frontend-chi.vercel.app", # Your frontend's production URL
+    "http://localhost:3000",              # The URL for your local frontend development
+]
 
 # Create the main FastAPI application instance
 # This is the core of our API with metadata for documentation
@@ -22,7 +29,7 @@ app = FastAPI(
 # This allows our API to be accessed from different domains/origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
