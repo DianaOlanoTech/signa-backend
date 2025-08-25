@@ -16,8 +16,6 @@ origins = [
     "https://signa-frontend-chi.vercel.app",  # Your frontend's production URL
     "http://localhost:3000",                  # The URL for your local frontend development
     "http://localhost:8000",                  # Local backend for development
-    "https://signa-backend-q1y2.onrender.com", # Your backend's production URL (for self-requests)
-    "*"  # Temporary: allows all origins - REMOVE in production for security
 ]
 
 # Create the main FastAPI application instance
