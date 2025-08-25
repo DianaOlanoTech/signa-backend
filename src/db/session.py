@@ -1,42 +1,54 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import StaticPool
 from src.core.config import settings
-from pathlib import Path
 
-# Check if we're using PostgreSQL (production) or SQLite (development)
-if settings.DATABASE_URL.startswith("postgresql://"):
-    # Production: Use PostgreSQL directly
-    SQLALCHEMY_DATABASE_URL = settings.DATABASE_URL
-    print(f"Using PostgreSQL database: {settings.DATABASE_URL}")
 
-    # PostgreSQL connection arguments
-    engine = create_engine(SQLALCHEMY_DATABASE_URL)
+def create_database_engine():
+    """Create database engine with appropriate configuration"""
 
-else:
-    # Development: Use SQLite with absolute path
-    # Get the backend project's root directory from our settings config.
-    project_root = Path(settings.Config.env_file).parent
+    if settings.is_sqlite:
+        # SQLite configuration
+        engine = create_engine(
+            settings.DATABASE_URL,
+            poolclass=StaticPool,
+            connect_args={
+                "check_same_thread": False,
+                "timeout": 20,
+            },
+            echo=False,  # Set to True for SQL debugging
+        )
 
-    # Extract the relative path of the database from the DATABASE_URL (e.g., './trademarks.db')
-    db_relative_path = settings.DATABASE_URL.split("///")[-1]
+        # Enable foreign keys for SQLite
+        @event.listens_for(engine, "connect")
+        def set_sqlite_pragma(dbapi_connection, connection_record):
+            cursor = dbapi_connection.cursor()
+            cursor.execute("PRAGMA foreign_keys=ON")
+            cursor.close()
 
-    # Construct an absolute path to the database file.
-    absolute_db_path = project_root / db_relative_path
+    elif settings.is_postgres:
+        # PostgreSQL configuration
+        engine = create_engine(
+            settings.DATABASE_URL,
+            pool_size=5,
+            max_overflow=10,
+            pool_pre_ping=True,
+            pool_recycle=3600,
+            echo=False,  # Set to True for SQL debugging
+        )
+    else:
+        raise ValueError(f"Unsupported database URL: {settings.DATABASE_URL}")
 
-    # Create the final, absolute database URL for SQLite.
-    SQLALCHEMY_DATABASE_URL = f"sqlite:///{absolute_db_path}"
-    print(f"Using SQLite database file: {absolute_db_path}")
+    return engine
 
-    # SQLite connection arguments
-    engine = create_engine(
-        SQLALCHEMY_DATABASE_URL,
-        connect_args={"check_same_thread": False}
-    )
 
+# Create engine and session factory
+engine = create_database_engine()
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 def get_db():
+    """Database dependency for FastAPI endpoints"""
     db = SessionLocal()
     try:
         yield db
